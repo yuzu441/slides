@@ -1,0 +1,197 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>雑にLTをする技術</title>
+  <link rel="stylesheet" href="./lib/talkie.min.css">
+  <link rel="stylesheet" href="./lib/talkie-default.min.css">
+  <link rel="stylesheet" href="./lib/monokai-sublime.min.css">
+  <style>
+    .icon {
+      border-radius: 50%;
+      width: 200px;
+    }
+    [layout] > p {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<script layout="title" type="text/x-markdown">
+# 雑にLTをする技術
+
+2018-03-26 [@yuzu_441](https://twitter.com/yuzu_441)
+</script>
+
+<script layout="bullets-invert" invert type="text/x-markdown">
+## 自己紹介
+
+<img src="https://github.com/yuzu441.png" class="icon"/>
+
+@yuzu_441
+
+Lang: JavaScript, Rust  
+推しメン: 白石麻衣（乃木坂46）
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## LTのハードル
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## 資料作りがめんどくさい🤔
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## 雑に資料を作ろう😇
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## 紹介するツール
+
+- [Rabbit](https://rabbit-shocker.org/ja/)
+- [Marp](https://yhatt.github.io/marp/)
+- [Qiita Slide](https://qiita.com/Qiita/items/4ff5873776992f0511d6)
+- [Talkie.js](https://ahomu.github.io/Talkie/)
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## Rabbit
+
+<img src="./image/rabbit-00.png" width="400px">
+
+Ruby製
+
+Wiki記法、markdown記法、RD(RubyDocument)で書ける
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## Rabbit
+
+<img src="./image/rabbit-01.png" width="400px">
+
+標準でタイマー（うさぎとかめ）が付いてる  
+うさぎと亀を同じタイミングでゴールさせると時間ピッタリ
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## Marp
+
+<img src="./image/marp.png" width="600px"/>
+
+Electron製
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## Marp
+
+- テキストエディタがついてる
+- markdown記法で書く
+- プレビューしながら作れる
+- pdf出力できる
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## Qiita Slide
+
+<img src="./image/qiita.png" width="450px"/>
+
+Qiitaで記事を書くとそのままプレゼン資料として使えるやつ
+
+縦スクロールするという割り切った思想なのが面白い
+</script>
+
+<script layout="bullets" type="text/x-markdown"/>
+## Talkie.js
+
+今使ってるこれ
+</script>
+
+<script layout="bullets" invert type="text/x-markdown">
+## 選ばれたのはTalkie.jsでした✨
+
+- カスタムが一番簡単そうだった
+- PDFをアップロードする系のサービス最近微妙なのでwebでいい
+- そもそも自分webエンジニアだった
+</script>
+
+<script layout="code" type="text/x-markdown">
+## スライド作りはこんな感じ
+
+```html
+<template layout="bullets" invert type="text/x-markdown">
+## 選ばれたのはTalkie.jsでした✨
+
+- HTMLのタグでスライド1枚わかりやすい
+- カスタムが一番簡単そうだった
+- PDFをアップロードする系のサービス最近微妙なのでwebでいい
+- そもそも自分webエンジニアだった
+</template>
+```
+</script>
+
+<script layout="code" type="text/x-markdown">
+### コマンド操作
+
+ショートカット操作も簡単に変更できる
+
+```javascript
+talkie.key('s').subscribe(talkie.next$);
+talkie.key('n').subscribe(talkie.next$);
+talkie.key('a').subscribe(talkie.prev$);
+talkie.key('p').subscribe(talkie.prev$);
+```
+</script>
+
+<script layout="bullets"
+  backface="./image/ramen.jpg"
+  backface-filter="blur(0) brightness(1)"
+  invert
+  type="text/x-markdown">
+背景に画像を設定して簡単にblurかけたりできる
+
+`backface-filter="blur(0) brightness(1)"`
+</script>
+
+<script layout="bullets"
+  backface="./image/ramen.jpg"
+  backface-filter="blur(10px) brightness(.8)"
+  invert
+  type="text/x-markdown">
+背景に画像を設定して簡単にblurかけたりできる
+
+`backface-filter="blur(10px) brightness(.8)"`
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+### その他
+
+- フルスクリーンモード(f)
+- ポインターモード(b)
+- キャンバスドロー(v, c)
+</script>
+
+<script layout="bullets" type="text/x-markdown">
+## 中身（調査・検証）に時間をかけたい😎
+</script>
+
+<script src="./lib/highlight.min.js"></script>
+<script src="./lib/talkie.min.js"></script>
+<script>
+  var talkie = Talkie({wide: true});
+
+  talkie.key('s').subscribe(talkie.next$);
+  talkie.key('n').subscribe(talkie.next$);
+  talkie.key('a').subscribe(talkie.prev$);
+  talkie.key('p').subscribe(talkie.prev$);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    talkie.changed.subscribe(function(current) {
+      console.clear();
+      // print presenter notes
+      console.info(talkie.notes[current.getAttribute('data-page')]);
+    });
+  });
+</script>
+</body>
+</html>
