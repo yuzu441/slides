@@ -1,0 +1,316 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>TypeORMを素振りした</title>
+  <link rel="stylesheet" href="./lib/talkie.min.css">
+  <link rel="stylesheet" href="./lib/talkie-default.min.css">
+  <link rel="stylesheet" href="./lib/monokai-sublime.min.css">
+  <style>
+    .icon {
+      border-radius: 50%;
+      width: 200px;
+    }
+
+    [layout] > p {
+      text-align: center;
+    }
+  [layout] {
+    font-family: "Noto Sans CJK JP", sans-serif;
+  }
+  [layout] h1, [layout] h2, [layout] h3, [layout] h4, [layout] h5, [layout] h6 {
+    font-weight: bold;
+    font-family: "Noto Sans CJK JP"
+  }
+  [layout] code, [layout=code] .hljs {
+    font-size: 125%;
+    font-family: "Ricty Diminished"
+  }
+  </style>
+</head>
+
+<body>
+
+  <!-- put your slides -->
+
+  <template layout="title" type="text/x-markdown">
+  # TypeORMを素振りした
+
+  2018-11-02 [@yuzu_441](https://twitter.com/yuzu_441)
+  </template>
+
+  <script layout="bullets-invert" invert type="text/x-markdown">
+  ## 自己紹介
+
+  <img src="https://github.com/yuzu441.png" class="icon"/>
+
+  @yuzu_441
+
+  Lang: JavaScript, Rust
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## 動機
+
+  後輩「NodeJSのいい感じのORM知りませんか？」
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## 話さないこと
+
+  - ほかのormとの比較
+  - dbのチューニング的なやつ
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## TypeORMとは
+
+  - TypeScriptで書かれたORM
+  - NodeJS/Browser/ReactNative等いろんな所で動く
+  - MySQL/MariaDB/Postgresなど幅広くサポート
+  - [調査に使用したコード](https://github.com/yuzu-sandbox/check_typeorm)
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ## TypeORMの使い方
+
+  ```sh
+  // インストール
+  yarn add typeorm reflect-metadata mysql2 
+  yarn add -D typescript @types/node ts-node
+
+  // セットアップ
+  npx tsc --init
+  touch ormconfig.json
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### ディレクトリイメージ 
+
+  ```txt
+  MyProject
+  ├── src
+  │   ├── entity
+  │   │   └── User.ts
+  │   └── index.ts
+  ├── ormconfig.json
+  └── tsconfig.json
+  ```
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ### ormconfig.json
+
+  - DBの宛先とかポート設定ファイル
+  - user, pw等
+  - Entityのコードがあるパス等
+    - 例は[gist](https://gist.github.com/yuzu441/28b24bea769252e4a092ade44fe76c0e)で
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### TypeScriptの設定
+
+  ```javascript
+  // tsconfig.json
+  {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
+  }
+  ```
+  </script>
+
+  <script layout="title" type="text/x-markdown">
+  ## 使ってみる
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### Model定義
+
+  ```typescript
+  export class User {
+    id: number
+    name: string
+    job: string
+  }
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### Model定義
+
+  ```typescript
+  import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+  @Entity()
+  export class User {
+    @PrimaryGeneratedColumn()
+    id: number
+
+    @Column()
+    name: string
+
+    @Column()
+    job: string
+  }
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### Model定義（制約とか)
+
+  ```typescript
+  import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+  @Entity()
+  export class User {
+    @PrimaryGeneratedColumn()
+    id: number
+
+    @Column({length: 30})
+    name: string
+
+    @Column({nullable: true})
+    job: string
+  }
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### insert
+
+  ```typescript
+  import { createConnection } from "typeorm"
+  import { User } from "./entity/User"
+
+  createConnection()
+    .then(async connection => {
+      const user = new User()
+      user.name = "yuzu"
+      const userRepo = connection.getRepository(User)
+      await userRepo.save(user)
+      console.log(user)//=> {id: 1, name: 'yuzu'}
+    })
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### 検索
+
+  ```typescript
+  // idで検索
+  await conection.getRepository(User).findByIds(1)
+  // プロパティで検索
+  await connection.getRepository(User).findOne({name: 'yuzu'})
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### 検索(join)
+
+  ```typescript
+  // User.ts
+  class User {
+    @OneToMay(type => Task, task => task.assign)
+    tasks: Task[]
+  }
+
+  // Task.ts
+  class Task {
+    @ManyToOne(type => User, user => user.id)
+    assign: User
+  }
+  ```
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### 検索(join)
+
+  ```typescript
+  await createConnection
+    .getRepository(User)
+    .createQueryBuiilder("user")
+    .leftJoinAndSelect("user.tasks", "task")
+    .getMany()
+  ```
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ### その他
+
+  - Transactionもしっかり書ける
+  - `@BeforeInsert`みたいなフックもある
+  - Loggerの設定もある
+  </script>
+
+  <script layout="title" type="text/x-markdown">
+  ## ちなみに
+  </script>
+
+  <script layout="code" type="text/x-markdown">
+  ### ActiveRecord風にも書ける
+
+  ```typescript
+  import { Entity, BaseEntity } from "typeorm"
+  @Entity()
+  export class User extends BaseEntity { /* ~~~ */ }
+
+  const user = new User()
+  user.name = "yuzu"
+  await user.save()
+
+  const allUser = await User.find()
+  const findUser = await User.findOne(1)
+  ```
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## まとめ
+
+  - mysqlはboolean対応してないのでtinyint使っている
+    - findした時にはboolに戻っていた
+  - 特に悩む事無く使える
+  - callbackではなくPromiseなのもポイント
+  - パパッとやるなら使ってもいいかも
+  - ドキュメントもしっかり書かれている
+  </script>
+
+  <script layout="title" type="text/x-markdown">
+  ## type safeに書けるのか
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## 今の所雰囲気書けない
+
+  - 最近のTSだと`strictPropertyInitialization`で怒られる
+    - autoincrementのカラムが。。。
+  - カラムの定義が厳密には`name: string | undefined`
+    - `new User()`した時には`name`に何も入ってない
+  - 値の代入忘れがコンパイルエラーにならず実行時エラー
+  </script>
+
+  <script layout="bullets" type="text/x-markdown">
+  ## twitterとかで
+  ## 他のライブラリの経験ある方教えてください
+  </script>
+
+  <script src="./lib/highlight.min.js"></script>
+  <script src="./lib/talkie.min.js"></script>
+  <script>
+    var talkie = Talkie({ wide: true });
+
+    talkie.key('s').subscribe(talkie.next$);
+    talkie.key('n').subscribe(talkie.next$);
+    talkie.key('a').subscribe(talkie.prev$);
+    talkie.key('p').subscribe(talkie.prev$);
+
+    document.addEventListener('DOMContentLoaded', function () {
+      talkie.changed.subscribe(function (current) {
+        console.clear();
+        // print presenter notes
+        console.info(talkie.notes[current.getAttribute('data-page')]);
+      });
+    });
+  </script>
+</body>
+
+</html>
